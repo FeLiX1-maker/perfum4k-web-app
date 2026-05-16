@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин Парфумів</title>
+    <!-- Підключаємо офіційну бібліотеку Telegram Web App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #fce4ec; color: #333; }
+        h2 { text-align: center; }
+        input, select, button { width: 100%; padding: 12px; margin-top: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ccc; }
+        button { background-color: #d81b60; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h2>Парфумерія 🌸</h2>
+    
+    <label for="perfume">Оберіть аромат:</label>
+    <select id="perfume">
+        <option value="Chanel No. 5 (2500 грн)">Chanel No. 5 - 2500 грн</option>
+        <option value="Dior Sauvage (3000 грн)">Dior Sauvage - 3000 грн</option>
+        <option value="Tom Ford Lost Cherry (4500 грн)">Tom Ford Lost Cherry - 4500 грн</option>
+    </select>
+
+    <label for="address" style="margin-top: 15px; display: block;">Адреса доставки:</label>
+    <input type="text" id="address" placeholder="Наприклад: Київ, Нова Пошта №15">
+
+    <button onclick="sendOrder()">Замовити</button>
+
+    <script>
+        // Ініціалізуємо Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Розгортаємо додаток на весь екран
+
+        function sendOrder() {
+            let perfume = document.getElementById("perfume").value;
+            let address = document.getElementById("address").value;
+
+            // Перевіряємо, чи ввів користувач адресу
+            if (address.trim() === "") {
+                alert("Будь ласка, введіть адресу доставки!");
+                return;
+            }
+
+            // Збираємо дані в один об'єкт
+            let orderData = {
+                item: perfume,
+                delivery: address
+            };
+
+            // Перетворюємо дані в текст (JSON) і відправляємо боту
+            tg.sendData(JSON.stringify(orderData));
+            tg.close(); // Закриваємо вікно після успішного замовлення
+        }
+    </script>
+</body>
+</html>

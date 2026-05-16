@@ -4,55 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Магазин Парфумів</title>
-    <!-- Підключаємо офіційну бібліотеку Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #fce4ec; color: #333; }
-        h2 { text-align: center; }
-        input, select, button { width: 100%; padding: 12px; margin-top: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ccc; }
-        button { background-color: #d81b60; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        /* Темно-синій фон та сріблястий текст для всієї сторінки */
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 15px; 
+            background-color: #0a192f; 
+            color: #e2e8f0; 
+            margin: 0;
+        }
+        h2 { text-align: center; color: #cbd5e1; }
+        
+        /* Сітка товарів */
+        .products-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Картка товару: трохи світліший синій з легкою рамкою */
+        .card {
+            background-color: #112240;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            text-align: center;
+            border: 1px solid #233554;
+        }
+        
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* Ціна парфуму: яскравий срібний акцент */
+        .price { font-weight: bold; color: #94a3b8; font-size: 1.2em; margin: 10px 0; }
+        
+        /* Кнопки */
+        button { 
+            width: 100%; padding: 12px; border-radius: 8px; 
+            border: none; font-weight: bold; cursor: pointer; 
+            font-size: 1em;
+        }
+        /* Срібна кнопка */
+        .btn-buy { background-color: #cbd5e1; color: #0a192f; }
+        /* Темна кнопка скасування */
+        .btn-cancel { background-color: #233554; color: #e2e8f0; margin-top: 10px; }
+        
+        /* Поле введення адреси: темне зі срібною рамкою */
+        input { 
+            width: 100%; padding: 12px; margin-top: 10px; 
+            box-sizing: border-box; border-radius: 8px; 
+            border: 1px solid #cbd5e1; background-color: #112240; color: white; font-size: 1em;
+        }
+
+        #order-section { display: none; }
     </style>
 </head>
 <body>
 
-    <h2>Парфумерія 🌸</h2>
-    
-    <label for="perfume">Оберіть аромат:</label>
-    <select id="perfume">
-        <option value="Chanel No. 5 (2500 грн)">Chanel No. 5 - 2500 грн</option>
-        <option value="Dior Sauvage (3000 грн)">Dior Sauvage - 3000 грн</option>
-        <option value="Tom Ford Lost Cherry (4500 грн)">Tom Ford Lost Cherry - 4500 грн</option>
-    </select>
+    <h2>Perfum4k 🌊</h2>
 
-    <label for="address" style="margin-top: 15px; display: block;">Адреса доставки:</label>
-    <input type="text" id="address" placeholder="Наприклад: Київ, Нова Пошта №15">
+    <div id="products-section" class="products-grid">
+        
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=300&q=80" alt="Chanel No. 5">
+            <h3>Chanel No. 5</h3>
+            <p class="price">2500 грн</p>
+            <button class="btn-buy" onclick="selectProduct('Chanel No. 5', '2500 грн')">Вибрати</button>
+        </div>
 
-    <button onclick="sendOrder()">Замовити</button>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=300&q=80" alt="Dior Sauvage">
+            <h3>Dior Sauvage</h3>
+            <p class="price">3000 грн</p>
+            <button class="btn-buy" onclick="selectProduct('Dior Sauvage', '3000 грн')">Вибрати</button>
+        </div>
+
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1615486171448-4efa3d6f1df0?auto=format&fit=crop&w=300&q=80" alt="Tom Ford">
+            <h3>Tom Ford Lost Cherry</h3>
+            <p class="price">4500 грн</p>
+            <button class="btn-buy" onclick="selectProduct('Tom Ford Lost Cherry', '4500 грн')">Вибрати</button>
+        </div>
+
+    </div>
+
+    <div id="order-section">
+        <h3 id="selected-item-text">Ви обрали: </h3>
+        
+        <label for="address">Ваша адреса доставки (Місто, Відділення НП):</label>
+        <input type="text" id="address" placeholder="Наприклад: Київ, НП №15">
+
+        <button class="btn-buy" style="margin-top: 20px;" onclick="sendOrder()">Підтвердити замовлення</button>
+        <button class="btn-cancel" onclick="cancelOrder()">⬅️ Назад до вітрини</button>
+    </div>
 
     <script>
-        // Ініціалізуємо Telegram Web App
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Розгортаємо додаток на весь екран
+        tg.expand();
+
+        let selectedPerfume = "";
+
+        function selectProduct(name, price) {
+            selectedPerfume = name + " (" + price + ")";
+            document.getElementById("selected-item-text").innerText = "Ви обрали: " + name;
+            document.getElementById("products-section").style.display = "none";
+            document.getElementById("order-section").style.display = "block";
+        }
+
+        function cancelOrder() {
+            selectedPerfume = "";
+            document.getElementById("address").value = "";
+            document.getElementById("order-section").style.display = "none";
+            document.getElementById("products-section").style.display = "flex";
+        }
 
         function sendOrder() {
-            let perfume = document.getElementById("perfume").value;
             let address = document.getElementById("address").value;
 
-            // Перевіряємо, чи ввів користувач адресу
             if (address.trim() === "") {
                 alert("Будь ласка, введіть адресу доставки!");
                 return;
             }
 
-            // Збираємо дані в один об'єкт
             let orderData = {
-                item: perfume,
+                item: selectedPerfume,
                 delivery: address
             };
 
-            // Перетворюємо дані в текст (JSON) і відправляємо боту
             tg.sendData(JSON.stringify(orderData));
-            tg.close(); // Закриваємо вікно після успішного замовлення
+            tg.close();
         }
     </script>
 </body>

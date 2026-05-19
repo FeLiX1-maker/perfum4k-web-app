@@ -8,13 +8,11 @@ import json
 import base64
 
 # --- НАЛАШТУВАННЯ ---
-TOKEN = "8971210949:AAHKowj9amdSdvxxzfL2JFox6T9avGnRWuo" 
-CHANNEL_NAME = "@Perfum4k_channel" 
-BOT_LINK = "https://t.me/Perfum4k_bot/store" 
+TOKEN = "ТВІЙ_ТОКЕН_БОТА" 
+CHANNEL_NAME = "@ТВІЙ_РЕАЛЬНИЙ_КАНАЛ" 
+BOT_LINK = "https://t.me/Perfum4k_bot/shop" 
 
-# СТОРІНКА КАТАЛОГУ, ЗВІДКИ БОТ БУДЕ БРАТИ ТОВАРИ (Можеш змінити на свою)
-CATALOG_URL = "https://gurtom.biz/Search?f_nomenclature_path=%d0%9f%d0%90%d0%a0%d0%a4%d0%a3%d0%9c%d0%95%d0%a0%d0%86%d0%af%2f%d0%9d%d0%98%d0%a8%d0%90&page=1&display=list" 
-POSTED_FILE = "posted_links.txt" # Файл пам'яті бота
+CATALOG_URL = "https://gurtom.biz/Products" 
 
 # --- НАЛАШТУВАННЯ GITHUB ---
 GITHUB_TOKEN = "ТВІЙ_GITHUB_ТОКЕН_ТУТ" 
@@ -23,8 +21,24 @@ GITHUB_REPO = "ТВІЙ_НІК/НАЗВА_РЕПОЗИТОРІЮ"
 
 bot = telebot.TeleBot(TOKEN)
 
-def add_product_to_github(title, price, img_url, brand):
-    """Додає новий товар у products.json на GitHub"""
+def get_posted_urls_from_github():
+    """Отримує список вже опублікованих посилань прямо з вітрини магазину"""
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/products.json"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            content_str = base64.b64decode(data['content']).decode('utf-8')
+            products = json.loads(content_str)
+            # Беремо всі посилання з бази
+            return set(p.get("url", "") for p in products)
+    except Exception as e:
+        print(f"Помилка читання бази GitHub: {e}")
+    return set()
+
+def add_product_to_github(title, price, img_url, brand, product_url):
+    """Додає товар і його ПОСИЛАННЯ в базу GitHub (вічна пам'ять)"""
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/products.json"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 
@@ -41,7 +55,8 @@ def add_product_to_github(title, price, img_url, brand):
     except:
         products = []
 
-    new_product = {"name": title, "price": price, "image": img_url, "brand": brand}
+    # ДОДАЛИ "url" В ПАМ'ЯТЬ
+    new_product = {"name": title, "price": price, "image": img_url, "brand": brand, "url": product_url}
     products.append(new_product)
 
     new_content_str = json.dumps(products, ensure_ascii=False, indent=2)
@@ -54,45 +69,33 @@ def add_product_to_github(title, price, img_url, brand):
     }
     requests.put(url, headers=headers, json=put_data)
 
-
 def get_new_product_link():
-    """Сканує каталог і повертає перше посилання, якого ще не було в пості"""
+    """Шукає нове посилання, якого ще немає на вітрині магазину"""
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(CATALOG_URL, headers=headers)
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Знаходимо ВСІ посилання на сторінці каталогу
         all_links = soup.find_all('a', href=True)
         product_links = []
         
         for a in all_links:
             href = a['href']
-            # Відбираємо тільки ті, що ведуть на сторінку товару
             if '/Products/Show/' in href:
                 full_url = f"https://gurtom.biz{href}" if href.startswith('/') else href
                 product_links.append(full_url)
                 
-        # Читаємо пам'ять бота
-        posted = set()
-        if os.path.exists(POSTED_FILE):
-            with open(POSTED_FILE, 'r', encoding='utf-8') as f:
-                posted = set(f.read().splitlines())
+        # Зчитуємо пам'ять з GitHub
+        posted = get_posted_urls_from_github()
                 
-        # Шукаємо свіжий товар
         for link in product_links:
             if link not in posted:
                 return link
                 
-        return None # Якщо всі товари на сторінці вже опубліковані
+        return None 
     except Exception as e:
         print(f"Помилка сканування каталогу: {e}")
         return None
-
-def mark_as_posted(link):
-    """Записує посилання в пам'ять, щоб не постити його знову"""
-    with open(POSTED_FILE, 'a', encoding='utf-8') as f:
-        f.write(link + '\n')
 
 def parse_and_post():
     product_url = get_new_product_link()
@@ -122,16 +125,13 @@ def parse_and_post():
                 img_url = f"https://gurtom.biz{src}" if src.startswith('/') else src
                 break
 
-        # Спроба витягнути бренд (якщо його немає в CSV, пробуємо знайти на сайті)
-        brand = "Парфумерія" # Заглушка
-        # Зазвичай бренд пишеться перед назвою або в хлібних крихтах
+        brand = "Парфумерія" 
         breadcrumb = soup.find('ul', class_='breadcrumb')
         if breadcrumb:
             links = breadcrumb.find_all('a')
             if len(links) > 2:
-                brand = links[-1].text.strip() # Останній елемент перед товаром часто є брендом
+                brand = links[-1].text.strip() 
 
-        # БРУТФОРС ОПИСУ
         description = ""
         longest_text = ""
         for tag in soup.find_all(['div', 'p', 'span', 'td']):
@@ -163,10 +163,8 @@ def parse_and_post():
             bot.send_photo(CHANNEL_NAME, photo=img_url, caption=caption, parse_mode='HTML')
             print(f"✅ Опубліковано: {title}")
             
-            add_product_to_github(title, price, img_url, brand)
-            
-            # ЗАПИСУЄМО В ПАМ'ЯТЬ, ТІЛЬКИ ЯКЩО ПОСТ УСПІШНИЙ!
-            mark_as_posted(product_url)
+            # ЗАПИСУЄМО В ПАМ'ЯТЬ GITHUB РАЗОМ З ТОВАРОМ!
+            add_product_to_github(title, price, img_url, brand, product_url)
         else:
             print(f"❌ Не вдалося знайти фото для: {title}")
             

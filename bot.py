@@ -1,10 +1,8 @@
 import telebot
-import json
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+import os  # <--- ОСЬ ЦЕЙ РЯДОК НАМ ПОТРІБЕН
 
 # --- НАЛАШТУВАННЯ ---
-# 1. Твій токен від BotFather
-TOKEN = os.environ.get("BOT_TOKEN") 
+TOKEN = os.environ.get("BOT_TOKEN")
 
 # 2. Твоє посилання на GitHub Pages
 WEB_APP_URL = "https://felix1-maker.github.io/perfum4k-web-app/" 

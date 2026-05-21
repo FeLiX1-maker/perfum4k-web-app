@@ -8,11 +8,10 @@ import json
 import base64
 
 # --- НАЛАШТУВАННЯ ---
-# Тепер код шукатиме токени у "сейфі" сервера
 TOKEN = os.environ.get("BOT_TOKEN") 
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN") 
 
-CHANNEL_NAME = "@Perfum4k_channel" # Заміни на свій канал
+CHANNEL_NAME = "@Perfum4k_channel" # ЗАМІНИ НА СВІЙ КАНАЛ
 BOT_LINK = "https://t.me/Perfum4k_bot/store" 
 CATALOG_URL = "https://surli.cc/kwzaqp" 
 

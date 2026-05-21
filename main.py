@@ -1,26 +1,24 @@
 import subprocess
-import os
-import threading
 from flask import Flask
+import threading
+import time
 
-# Створюємо мікро-сервер для хостингу
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Бот Perfum4k працює 24/7! 🚀"
+    return "Я живий!"
 
-def run_scripts():
+def run_flask():
+    app.run(host='0.0.0.0', port=8080)
+
+if __name__ == '__main__':
     print("🤖 Запускаю bot.py...")
     subprocess.Popen(["python", "bot.py"])
     
     print("📝 Запускаю autopost.py...")
+    # ОСЬ ЦЕЙ РЯДОК МАЄ БУТИ ОБОВ'ЯЗКОВО!
     subprocess.Popen(["python", "autopost.py"])
-
-if __name__ == "__main__":
-    # Запускаємо твої скрипти у фоновому режимі
-    threading.Thread(target=run_scripts).start()
     
-    # Запускаємо сервер на порту, який видасть хостинг
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    # Запускаємо сервер-заглушку для Render
+    run_flask()

@@ -39,12 +39,16 @@ def get_posted_urls_from_github():
     return set()
 
 def add_product_to_github(title, price, img_url, brand, product_url):
-    """Додає товар і його ПОСИЛАННЯ в базу GitHub (вічна пам'ять)"""
+    """Додає товар у базу GitHub і показує помилки, якщо вони є"""
+    print(f"🔄 Спроба додати '{title}' у вітрину GitHub...")
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/products.json"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 
+    # Крок 1: Читаємо файл
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
+        print(f"❌ ПОМИЛКА ЧИТАННЯ GitHub: {response.status_code} - {response.text}")
+        print("💡 Підказка: Можливо файл products.json не існує, або токен не має доступу.")
         return
 
     data = response.json()
@@ -56,7 +60,7 @@ def add_product_to_github(title, price, img_url, brand, product_url):
     except:
         products = []
 
-    # ДОДАЛИ "url" В ПАМ'ЯТЬ
+    # Крок 2: Додаємо товар
     new_product = {"name": title, "price": price, "image": img_url, "brand": brand, "url": product_url}
     products.append(new_product)
 
@@ -68,9 +72,13 @@ def add_product_to_github(title, price, img_url, brand, product_url):
         "content": new_content_b64,
         "sha": sha
     }
-    requests.put(url, headers=headers, json=put_data)
-
-def get_new_product_link():
+    
+    # Крок 3: Зберігаємо оновлений файл
+    put_response = requests.put(url, headers=headers, json=put_data)
+    if put_response.status_code in [200, 201]:
+        print("✅ Товар УСПІШНО додано до вітрини Web App!")
+    else:
+        print(f"❌ ПОМИЛКА ЗАПИСУ на GitHub: {put_response.status_code} - {put_response.text}")
     """Шукає нове посилання, якого ще немає на вітрині магазину"""
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
@@ -131,12 +139,9 @@ def parse_and_post():
         breadcrumb = soup.find('div', class_='breadcrumb_header')
         if breadcrumb:
             links = breadcrumb.find_all('a')
-            if len(links) > 1:
-                # Беремо ПЕРЕДОСТАННЄ посилання (це і є бренд)
-                brand = links[-2].text.strip() 
-            elif len(links) == 1:
-                # Якщо посилання тільки одне (про всяк випадок)
-                brand = links[0].text.strip()
+            if len(links) > 0:
+                # Повертаємо [-1], бо останнім посиланням є саме бренд
+                brand = links[-1].text.strip()
 
         description = ""
         longest_text = ""

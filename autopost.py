@@ -8,15 +8,16 @@ import json
 import base64
 
 # --- НАЛАШТУВАННЯ ---
-TOKEN = "ТВІЙ_ТОКЕН_БОТА" 
-CHANNEL_NAME = "@ТВІЙ_РЕАЛЬНИЙ_КАНАЛ" 
-BOT_LINK = "https://t.me/Perfum4k_bot/shop" 
+# Тепер код шукатиме токени у "сейфі" сервера
+TOKEN = os.environ.get("BOT_TOKEN") 
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 
-CATALOG_URL = "https://gurtom.biz/Products" 
+CHANNEL_NAME = "@Perfum4k_channel" # Заміни на свій канал
+BOT_LINK = "https://t.me/Perfum4k_bot/store" 
+CATALOG_URL = "https://surli.cc/kwzaqp" 
 
 # --- НАЛАШТУВАННЯ GITHUB ---
-GITHUB_TOKEN = "ТВІЙ_GITHUB_ТОКЕН_ТУТ" 
-GITHUB_REPO = "ТВІЙ_НІК/НАЗВА_РЕПОЗИТОРІЮ" 
+GITHUB_REPO = "FeLiX1-maker/perfum4k-web-app" # Наприклад: lki-l/Perfum4k_Bot
 # --------------------
 
 bot = telebot.TeleBot(TOKEN)

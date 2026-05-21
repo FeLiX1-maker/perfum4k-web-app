@@ -1,7 +1,5 @@
 import subprocess
 from flask import Flask
-import threading
-import time
 
 app = Flask(__name__)
 
@@ -14,11 +12,12 @@ def run_flask():
 
 if __name__ == '__main__':
     print("🤖 Запускаю bot.py...")
-    subprocess.Popen(["python", "bot.py"])
+    # Додали -u для миттєвого виводу тексту
+    subprocess.Popen(["python", "-u", "bot.py"])
     
     print("📝 Запускаю autopost.py...")
-    # ОСЬ ЦЕЙ РЯДОК МАЄ БУТИ ОБОВ'ЯЗКОВО!
-    subprocess.Popen(["python", "autopost.py"])
+    # Додали -u для миттєвого виводу тексту
+    subprocess.Popen(["python", "-u", "autopost.py"])
     
     # Запускаємо сервер-заглушку для Render
     run_flask()

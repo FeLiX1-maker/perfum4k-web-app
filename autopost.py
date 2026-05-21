@@ -126,14 +126,17 @@ def parse_and_post():
                 img_url = f"https://gurtom.biz{src}" if src.startswith('/') else src
                 break
 
-        # --- ШУКАЄМО РЕАЛЬНИЙ БРЕНД ---
+       # --- ШУКАЄМО РЕАЛЬНИЙ БРЕНД ---
         brand = "Невідомий бренд" 
         breadcrumb = soup.find('div', class_='breadcrumb_header')
         if breadcrumb:
             links = breadcrumb.find_all('a')
-            if len(links) > 0:
-                # Беремо текст останнього посилання в ланцюжку (це і є бренд)
-                brand = links[-1].text.strip() 
+            if len(links) > 1:
+                # Беремо ПЕРЕДОСТАННЄ посилання (це і є бренд)
+                brand = links[-2].text.strip() 
+            elif len(links) == 1:
+                # Якщо посилання тільки одне (про всяк випадок)
+                brand = links[0].text.strip()
 
         description = ""
         longest_text = ""

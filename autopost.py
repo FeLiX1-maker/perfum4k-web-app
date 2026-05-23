@@ -1,3 +1,4 @@
+print("⚡ Файл autopost.py почав завантаження...")
 import telebot
 import time
 import schedule
@@ -184,7 +185,11 @@ def parse_and_post():
 schedule.every(1).minutes.do(parse_and_post)
 
 if __name__ == "__main__":
-    print("🚀 Автопостинг-Скрапер запущено! Шукаю товари прямо на сайті...")
+    print("🚀 Автопостинг-Скрапер запущено! Роблю ПЕРШИЙ запуск прямо зараз...")
+
+    # ЗМУШУЄМО БОТА ПРАЦЮВАТИ ОДРАЗУ, НЕ ЧЕКАЮЧИ ХВИЛИНУ:
+    parse_and_post() 
+
     while True:
         schedule.run_pending()
         time.sleep(1)

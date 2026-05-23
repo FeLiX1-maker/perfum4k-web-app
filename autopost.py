@@ -1,4 +1,3 @@
-print("⚡ Файл autopost.py почав завантаження...")
 import telebot
 import time
 import schedule
@@ -8,22 +7,22 @@ import os
 import json
 import base64
 
+print("⚡ Файл autopost.py почав завантаження...")
+
 # --- НАЛАШТУВАННЯ ---
 TOKEN = os.environ.get("BOT_TOKEN") 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN") 
 
-CHANNEL_NAME = "@Perfum4k_channel" # ЗАМІНИ НА СВІЙ КАНАЛ
+CHANNEL_NAME = "@Perfum4k_channel" # <--- ЗАМІНИ НА СВІЙ КАНАЛ
 BOT_LINK = "https://t.me/Perfum4k_bot/store" 
-CATALOG_URL = "https://surli.cc/kwzaqp" 
+CATALOG_URL = "https://gurtom.biz/Search" 
 
 # --- НАЛАШТУВАННЯ GITHUB ---
-GITHUB_REPO = "FeLiX1-maker/perfum4k-web-app" # Наприклад: lki-l/Perfum4k_Bot
-# --------------------
+GITHUB_REPO = "felix1-maker/perfum4k-web-app"
 
 bot = telebot.TeleBot(TOKEN)
 
 def get_posted_urls_from_github():
-    """Отримує список вже опублікованих посилань прямо з вітрини магазину"""
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/products.json"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     try:
@@ -32,23 +31,19 @@ def get_posted_urls_from_github():
             data = response.json()
             content_str = base64.b64decode(data['content']).decode('utf-8')
             products = json.loads(content_str)
-            # Беремо всі посилання з бази
             return set(p.get("url", "") for p in products)
     except Exception as e:
         print(f"Помилка читання бази GitHub: {e}")
     return set()
 
 def add_product_to_github(title, price, img_url, brand, product_url):
-    """Додає товар у базу GitHub і показує помилки, якщо вони є"""
     print(f"🔄 Спроба додати '{title}' у вітрину GitHub...")
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/products.json"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 
-    # Крок 1: Читаємо файл
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"❌ ПОМИЛКА ЧИТАННЯ GitHub: {response.status_code} - {response.text}")
-        print("💡 Підказка: Можливо файл products.json не існує, або токен не має доступу.")
         return
 
     data = response.json()
@@ -60,7 +55,6 @@ def add_product_to_github(title, price, img_url, brand, product_url):
     except:
         products = []
 
-    # Крок 2: Додаємо товар
     new_product = {"name": title, "price": price, "image": img_url, "brand": brand, "url": product_url}
     products.append(new_product)
 
@@ -73,13 +67,13 @@ def add_product_to_github(title, price, img_url, brand, product_url):
         "sha": sha
     }
     
-    # Крок 3: Зберігаємо оновлений файл
     put_response = requests.put(url, headers=headers, json=put_data)
     if put_response.status_code in [200, 201]:
         print("✅ Товар УСПІШНО додано до вітрини Web App!")
     else:
         print(f"❌ ПОМИЛКА ЗАПИСУ на GitHub: {put_response.status_code} - {put_response.text}")
-    """Шукає нове посилання, якого ще немає на вітрині магазину"""
+
+def get_new_product_link():
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(CATALOG_URL, headers=headers)
@@ -94,7 +88,6 @@ def add_product_to_github(title, price, img_url, brand, product_url):
                 full_url = f"https://gurtom.biz{href}" if href.startswith('/') else href
                 product_links.append(full_url)
                 
-        # Зчитуємо пам'ять з GitHub
         posted = get_posted_urls_from_github()
                 
         for link in product_links:
@@ -107,6 +100,7 @@ def add_product_to_github(title, price, img_url, brand, product_url):
         return None
 
 def parse_and_post():
+    print("🔍 Починаю перевірку нових товарів...")
     product_url = get_new_product_link()
     
     if not product_url:
@@ -134,14 +128,12 @@ def parse_and_post():
                 img_url = f"https://gurtom.biz{src}" if src.startswith('/') else src
                 break
 
-       # --- ШУКАЄМО РЕАЛЬНИЙ БРЕНД ---
         brand = "Невідомий бренд" 
         breadcrumb = soup.find('div', class_='breadcrumb_header')
         if breadcrumb:
             links = breadcrumb.find_all('a')
             if len(links) > 0:
-                # Повертаємо [-1], бо останнім посиланням є саме бренд
-                brand = links[-1].text.strip()
+                brand = links[-1].text.strip() 
 
         description = ""
         longest_text = ""
@@ -174,7 +166,7 @@ def parse_and_post():
             bot.send_photo(CHANNEL_NAME, photo=img_url, caption=caption, parse_mode='HTML')
             print(f"✅ Опубліковано: {title}")
             
-            # ЗАПИСУЄМО В ПАМ'ЯТЬ GITHUB РАЗОМ З ТОВАРОМ!
+            # ЗАПИСУЄМО В ПАМ'ЯТЬ GITHUB
             add_product_to_github(title, price, img_url, brand, product_url)
         else:
             print(f"❌ Не вдалося знайти фото для: {title}")
@@ -182,14 +174,10 @@ def parse_and_post():
     except Exception as e:
         print(f"❌ Сталася помилка: {e}")
 
-schedule.every(1).minutes.do(parse_and_post)
-
 if __name__ == "__main__":
     print("🚀 Автопостинг-Скрапер запущено! Роблю ПЕРШИЙ запуск прямо зараз...")
-
-    # ЗМУШУЄМО БОТА ПРАЦЮВАТИ ОДРАЗУ, НЕ ЧЕКАЮЧИ ХВИЛИНУ:
-    parse_and_post() 
-
+    parse_and_post()
+    
     while True:
         schedule.run_pending()
         time.sleep(1)

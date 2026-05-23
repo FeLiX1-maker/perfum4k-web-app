@@ -188,6 +188,9 @@ if __name__ == "__main__":
     print("🚀 Автопостинг-Скрапер запущено! Роблю ПЕРШИЙ запуск прямо зараз...")
     parse_and_post()
     
+    # ОСЬ ВТРАЧЕНИЙ РЯДОК З ТАЙМЕРОМ:
+    schedule.every(1).minutes.do(parse_and_post)
+    
     while True:
         schedule.run_pending()
         time.sleep(1)

@@ -18,7 +18,7 @@ BOT_LINK = "https://t.me/Perfum4k_bot/store"
 CATALOG_URL = "https://gurtom.biz/Search" 
 
 # --- НАЛАШТУВАННЯ GITHUB ---
-GITHUB_REPO = "felix1-maker/perfum4k-web-app"
+GITHUB_REPO = "FeLiX1-maker/perfum4k-web-app"
 
 bot = telebot.TeleBot(TOKEN)
 

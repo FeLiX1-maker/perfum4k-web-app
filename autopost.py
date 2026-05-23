@@ -15,7 +15,7 @@ GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 
 CHANNEL_NAME = "@Perfum4k_channel" # <--- ЗАМІНИ НА СВІЙ КАНАЛ
 BOT_LINK = "https://t.me/Perfum4k_bot/store" 
-CATALOG_URL = "https://gurtom.biz/Search?f_brand=BURBERRY" 
+CATALOG_URL = "https://gurtom.biz/Search?f_brand=BVLGARI" 
 
 # --- НАЛАШТУВАННЯ GITHUB ---
 GITHUB_REPO = "FeLiX1-maker/perfum4k-web-app"

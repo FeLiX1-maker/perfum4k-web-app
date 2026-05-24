@@ -15,7 +15,7 @@ GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 
 CHANNEL_NAME = "@Perfum4k_channel" # <--- ЗАМІНИ НА СВІЙ КАНАЛ
 BOT_LINK = "https://t.me/Perfum4k_bot/store" 
-CATALOG_URL = "https://gurtom.biz/Search?f_brand=CAROLINA+HERRERA&page=2" 
+CATALOG_URL = "https://gurtom.biz/Search?f_brand=CHANEL"
 
 # --- НАЛАШТУВАННЯ GITHUB ---
 GITHUB_REPO = "FeLiX1-maker/perfum4k-web-app"

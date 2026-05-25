@@ -11,7 +11,7 @@ print("⚡ Файл autopost.py почав завантаження...")
 # --- НАЛАШТУВАННЯ ---
 TOKEN = os.environ.get("BOT_TOKEN") 
 CHANNEL_NAME = "@Perfum4k_channel" # <--- ЗАМІНИ НА СВІЙ КАНАЛ
-CATALOG_URL = "https://gurtom.biz/Search?f_brand=CHANEL&page=2
+CATALOG_URL = "https://gurtom.biz/Search?f_brand=CHANEL&page=2"
 
 bot = telebot.TeleBot(TOKEN)
 
